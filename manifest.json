@@ -1,0 +1,23 @@
+{
+  "name": "GitHub Repo Size",
+  "version": "0.0.1",
+  "manifest_version": 2,
+  "description": "Display repository size on GitHub",
+  "homepage_url": "https://github.com/harshjv/github-repo-size",
+  "author": "Harsh Vakharia",
+  "permissions": [
+    "http://github.com/*",
+    "https://github.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "http://github.com/*",
+        "https://github.com/*"
+      ],
+      "js": [
+        "src/inject.js"
+      ]
+    }
+  ]
+}
