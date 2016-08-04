@@ -1,6 +1,6 @@
 /* global chrome, fetch*/
 
-const API = 'https://api.github.com/repos/'
+var API = 'https://api.github.com/repos/'
 
 function getUsernameWithReponameFromGithubURL (url) {
   var parser = document.createElement('a')
@@ -19,13 +19,13 @@ function formatKiloBytes (bytes) {
 
   bytes *= 1024
 
-  var k = 1024
-  var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
-  var i = Math.floor(Math.log(bytes) / Math.log(k))
+  var K = 1024
+  var MEASURE = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+  var i = Math.floor(Math.log(bytes) / Math.log(K))
 
   return {
-    size: parseFloat((bytes / Math.pow(k, i)).toFixed(2)),
-    measure: sizes[i]
+    size: parseFloat((bytes / Math.pow(K, i)).toFixed(2)),
+    measure: MEASURE[i]
   }
 }
 
@@ -58,7 +58,7 @@ chrome.extension.sendMessage({}, function (response) {
     if (document.readyState === 'complete') {
       clearInterval(readyStateCheckInterval)
 
-      let ns = document.querySelector('ul.numbers-summary')
+      var ns = document.querySelector('ul.numbers-summary')
 
       if (ns !== null) {
         getRepoSize(getUsernameWithReponameFromGithubURL(window.location.href), function (size) {
