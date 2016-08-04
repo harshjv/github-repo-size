@@ -5,6 +5,14 @@
   "description": "Display repository size on GitHub",
   "homepage_url": "https://github.com/harshjv/github-repo-size",
   "author": "Harsh Vakharia",
+  "icons": {
+    "16": "icons/ghrs16.png",
+    "19": "icons/ghrs19.png",
+    "48": "icons/ghrs48.png",
+    "128": "icons/ghrs128.png",
+    "256": "icons/ghrs128.png",
+    "512": "icons/ghrs128.png"
+  },
   "permissions": [
     "http://github.com/*",
     "https://github.com/*"
