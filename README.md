@@ -11,6 +11,11 @@ Automatically adds repository size to GitHub's repository summary.
 
 ## Installation
 
+Install extension from [Chrome Web Store](https://chrome.google.com/webstore/detail/github-repository-size/apnjnioapinblneaedefcnopcjepgkci)
+
+
+## Development
+
 1. Clone this repo
 2. Go to chrome extensions [chrome://extensions](chrome://extensions)
 3. Enable developer mode
