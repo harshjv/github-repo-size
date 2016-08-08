@@ -32,25 +32,25 @@ function formatKiloBytes (bytes) {
 function checkStatus (response) {
   if (200 <= response.status < 300) {
     return response
-  } else {
-    return null
   }
+
+  throw Error(`GitHub returned a bad status: ${response.status}`)
 }
 
 function parseJSON (response) {
-  return response === null ? null : response.json()
+  if (response) {
+    return response.json()
+  }
+
+  throw Error('Could not parse JSON')
 }
 
 function getRepoSize (repo, callback) {
   fetch(API + repo)
     .then(checkStatus)
     .then(parseJSON)
-    .then(function (data) {
-      callback(data === null ? null : data.size)
-    }).catch(function (error) {
-      if (error) {}
-      callback(null)
-    })
+    .then(data => callback(data && data.size))
+    .catch(e => console.error(e))
 }
 
 chrome.extension.sendMessage({}, function (response) {
