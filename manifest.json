@@ -22,7 +22,8 @@
       ],
       "js": [
         "src/inject.js"
-      ]
+      ],
+      "run_at": "document_end"
     }
   ]
 }
