@@ -1,6 +1,6 @@
 /* global chrome, fetch*/
 
-var API = 'https://api.github.com/repos/'
+const API = 'https://api.github.com/repos/'
 
 function getUsernameWithReponameFromGithubURL (url) {
   var parser = document.createElement('a')
@@ -19,9 +19,9 @@ function formatKiloBytes (bytes) {
 
   bytes *= 1024
 
-  var K = 1024
-  var MEASURE = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
-  var i = Math.floor(Math.log(bytes) / Math.log(K))
+  const K = 1024,
+    MEASURE = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
+    i = Math.floor(Math.log(bytes) / Math.log(K))
 
   return {
     size: parseFloat((bytes / Math.pow(K, i)).toFixed(2)),
