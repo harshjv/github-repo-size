@@ -30,7 +30,7 @@ function formatKiloBytes (bytes) {
 }
 
 function checkStatus (response) {
-  if (200 <= response.status < 300) {
+  if (response.status >= 200 && response.status < 300) {
     return response
   }
 
