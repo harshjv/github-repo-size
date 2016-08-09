@@ -19,9 +19,9 @@ function formatKiloBytes (bytes) {
 
   bytes *= 1024
 
-  const K = 1024,
-    MEASURE = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
-    i = Math.floor(Math.log(bytes) / Math.log(K))
+  const K = 1024
+  const MEASURE = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+  const i = Math.floor(Math.log(bytes) / Math.log(K))
 
   return {
     size: parseFloat((bytes / Math.pow(K, i)).toFixed(2)),
