@@ -1,4 +1,4 @@
-/* global chrome, fetch*/
+/* global fetch */
 
 const API = 'https://api.github.com/repos/'
 
