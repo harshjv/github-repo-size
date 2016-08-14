@@ -13,7 +13,7 @@ function getRepoInfoURI (uri) {
 }
 
 function getSizeHTML (size) {
-  const humanReadableSize = formatKiloBytes(size)
+  const humanReadableSize = getHumanReadableSizeObject(size)
   return '<li>' +
     '<a>' +
     '<svg class="octicon octicon-database" aria-hidden="true" height="16" version="1.1" viewBox="0 0 12 16" width="12">' +
@@ -27,7 +27,7 @@ function getSizeHTML (size) {
     '</li>'
 }
 
-function formatKiloBytes (bytes) {
+function getHumanReadableSizeObject (bytes) {
   if (bytes === 0) {
     return {
       size: 0,
