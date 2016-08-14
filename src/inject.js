@@ -1,4 +1,4 @@
-/* global fetch */
+/* global fetch, Request, Headers */
 
 const API = 'https://api.github.com/repos/'
 
@@ -12,19 +12,15 @@ function getRepoInfoURI (uri) {
   return repoURI[0] + '/' + repoURI[1]
 }
 
-function getSizeHTML (size) {
-  const humanReadableSize = getHumanReadableSizeObject(size)
-  return '<li>' +
-    '<a>' +
-    '<svg class="octicon octicon-database" aria-hidden="true" height="16" version="1.1" viewBox="0 0 12 16" width="12">' +
-    '<path d="M6 15c-3.31 0-6-.9-6-2v-2c0-.17.09-.34.21-.5.67.86 3 1.5 5.79 1.5s5.12-.64 5.79-1.5c.13.16.21.33.21.5v2c0 1.1-2.69 2-6 2zm0-4c-3.31 0-6-.9-6-2V7c0-.11.04-.21.09-.31.03-.06.07-.13.12-.19C.88 7.36 3.21 8 6 8s5.12-.64 5.79-1.5c.05.06.09.13.12.19.05.1.09.21.09.31v2c0 1.1-2.69 2-6 2zm0-4c-3.31 0-6-.9-6-2V3c0-1.1 2.69-2 6-2s6 .9 6 2v2c0 1.1-2.69 2-6 2zm0-5c-2.21 0-4 .45-4 1s1.79 1 4 1 4-.45 4-1-1.79-1-4-1z"></path>' +
-    '</svg>' +
-    '<span class="num text-emphasized"> ' +
-    humanReadableSize.size +
-    '</span> ' +
-    humanReadableSize.measure +
-    '</a>' +
-    '</li>'
+function getRepoContentURI (uri) {
+  var repoURI = uri.split('/')
+  var treeBranch = repoURI.splice(2, 2, 'contents')
+
+  if (treeBranch && treeBranch[1]) {
+    repoURI.push('?ref=' + treeBranch[1])
+  }
+
+  return repoURI.join('/')
 }
 
 function getHumanReadableSizeObject (bytes) {
@@ -45,7 +41,30 @@ function getHumanReadableSizeObject (bytes) {
   }
 }
 
+function getHumanReadableSize (size) {
+  if (!size) return ''
+
+  var t = getHumanReadableSizeObject(size)
+  return t.size + ' ' + t.measure
+}
+
+function getSizeHTML (size) {
+  const humanReadableSize = getHumanReadableSizeObject(size)
+  return '<li>' +
+    '<a>' +
+    '<svg class="octicon octicon-database" aria-hidden="true" height="16" version="1.1" viewBox="0 0 12 16" width="12">' +
+    '<path d="M6 15c-3.31 0-6-.9-6-2v-2c0-.17.09-.34.21-.5.67.86 3 1.5 5.79 1.5s5.12-.64 5.79-1.5c.13.16.21.33.21.5v2c0 1.1-2.69 2-6 2zm0-4c-3.31 0-6-.9-6-2V7c0-.11.04-.21.09-.31.03-.06.07-.13.12-.19C.88 7.36 3.21 8 6 8s5.12-.64 5.79-1.5c.05.06.09.13.12.19.05.1.09.21.09.31v2c0 1.1-2.69 2-6 2zm0-4c-3.31 0-6-.9-6-2V3c0-1.1 2.69-2 6-2s6 .9 6 2v2c0 1.1-2.69 2-6 2zm0-5c-2.21 0-4 .45-4 1s1.79 1 4 1 4-.45 4-1-1.79-1-4-1z"></path>' +
+    '</svg>' +
+    '<span class="num text-emphasized"> ' +
+    humanReadableSize.size +
+    '</span> ' +
+    humanReadableSize.measure +
+    '</a>' +
+    '</li>'
+}
+
 function checkStatus (response) {
+  console.log(response)
   if (response.status >= 200 && response.status < 300) {
     return response
   }
@@ -62,25 +81,63 @@ function parseJSON (response) {
 }
 
 function getAPIData (uri, callback) {
-  fetch(API + uri, {
-    headers: {
+  var request = new Request(API + uri, {
+    headers: new Headers({
       'User-Agent': 'harshjv/github-repo-size'
-    }
+    })
   })
+
+  fetch(request)
     .then(checkStatus)
     .then(parseJSON)
-    .then(data => callback(data && data.size))
+    .then(callback)
     .catch(e => console.error(e))
+}
+
+function getFileName (text) {
+  return text.trim().split('/')[0]
 }
 
 function checkForRepoPage () {
   var repoURI = window.location.pathname.substring(1)
 
   if (isTree(repoURI)) {
-    getAPIData(getRepoInfoURI(repoURI), function (size) {
-      if (size) {
-        var ns = document.querySelector('ul.numbers-summary')
-        ns.insertAdjacentHTML('beforeend', getSizeHTML(size))
+    var ns = document.querySelector('ul.numbers-summary')
+
+    if (ns) {
+      getAPIData(getRepoInfoURI(repoURI), function (data) {
+        if (data && data.size) {
+          ns.insertAdjacentHTML('beforeend', getSizeHTML(data.size))
+        }
+      })
+    }
+
+    getAPIData(getRepoContentURI(repoURI), function (data) {
+      var sizeArray = {}
+
+      var upTree = document.querySelector('div.file-wrap > table > tbody > tr.up-tree > td > a.js-navigation-open')
+
+      if (upTree) {
+        upTree.parentNode.parentNode.appendChild(document.createElement('td'))
+      }
+
+      for (var item of data) {
+        sizeArray[item.name] = item.type !== 'dir' ? item.size : null
+      }
+
+      var contents = document.querySelectorAll('div.file-wrap > table > tbody:last-child tr > td.content > span > a')
+      var ageForReference = document.querySelectorAll('div.file-wrap > table > tbody:last-child tr > td.age')
+
+      var i = 0
+
+      for (var o of contents) {
+        var t = sizeArray[getFileName(o.text)]
+
+        var td = document.createElement('td')
+        td.className = 'age'
+        td.innerHTML = '<span class="css-truncate css-truncate-target">' + getHumanReadableSize(t) + '</span>'
+
+        o.parentNode.parentNode.parentNode.insertBefore(td, ageForReference[i++])
       }
     })
   }
