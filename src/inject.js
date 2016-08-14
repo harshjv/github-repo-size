@@ -2,11 +2,14 @@
 
 const API = 'https://api.github.com/repos/'
 
-function getUsernameWithReponameFromGithubURL (url) {
-  var parser = document.createElement('a')
-  parser.href = url
-  var repoURL = parser.pathname.substring(1).split('/')
-  return repoURL[0] + '/' + repoURL[1]
+function isTree (uri) {
+  var repoURI = uri.split('/')
+  return repoURI.length === 2 || repoURI[2] === 'tree'
+}
+
+function getRepoInfoURI (uri) {
+  var repoURI = uri.split('/')
+  return repoURI[0] + '/' + repoURI[1]
 }
 
 function formatKiloBytes (bytes) {
@@ -45,8 +48,8 @@ function parseJSON (response) {
   throw Error('Could not parse JSON')
 }
 
-function getRepoSize (repo, callback) {
-  fetch(API + repo)
+function getAPIData (uri, callback) {
+  fetch(API + uri)
     .then(checkStatus)
     .then(parseJSON)
     .then(data => callback(data && data.size))
@@ -54,11 +57,12 @@ function getRepoSize (repo, callback) {
 }
 
 function checkForRepoPage () {
-  var ns = document.querySelector('ul.numbers-summary')
+  var repoURI = window.location.pathname.substring(1)
 
-  if (ns !== null) {
-    getRepoSize(getUsernameWithReponameFromGithubURL(window.location.href), function (size) {
+  if (isTree(repoURI)) {
+    getAPIData(getRepoInfoURI(repoURI), function (size) {
       if (size) {
+        var ns = document.querySelector('ul.numbers-summary')
         const humanReadableSize = formatKiloBytes(size)
         const html = '<li>' +
           '<a>' +
