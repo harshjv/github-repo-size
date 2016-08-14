@@ -64,7 +64,11 @@ function parseJSON (response) {
 }
 
 function getAPIData (uri, callback) {
-  fetch(API + uri)
+  fetch(API + uri, {
+    headers: {
+      'User-Agent': 'harshjv/github-repo-size'
+    }
+  })
     .then(checkStatus)
     .then(parseJSON)
     .then(data => callback(data && data.size))
