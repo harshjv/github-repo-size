@@ -107,7 +107,7 @@ function checkForRepoPage () {
     if (ns) {
       getAPIData(getRepoInfoURI(repoURI), function (data) {
         if (data && data.size) {
-          ns.insertAdjacentHTML('beforeend', getSizeHTML(data.size))
+          ns.insertAdjacentHTML('beforeend', getSizeHTML(data.size * 1024))
         }
       })
     }
