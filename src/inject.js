@@ -42,7 +42,7 @@ function getHumanReadableSizeObject (bytes) {
 }
 
 function getHumanReadableSize (size) {
-  if (!size) return ''
+  if (size === null) return ''
 
   var t = getHumanReadableSizeObject(size)
   return t.size + ' ' + t.measure
