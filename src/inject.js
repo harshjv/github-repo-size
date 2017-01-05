@@ -84,17 +84,17 @@ function parseJSON (response) {
 }
 
 function getAPIData (uri, callback) {
-  var headerObj = {
+  const headerObj = {
     'User-Agent': 'harshjv/github-repo-size'
   }
 
-  var token = githubToken || localStorage.getItem(GITHUB_TOKEN_KEY)
+  const token = localStorage.getItem(GITHUB_TOKEN_KEY) || githubToken
 
   if (token) {
     headerObj['Authorization'] = 'token ' + token
   }
 
-  var request = new Request(API + uri, {
+  const request = new Request(API + uri, {
     headers: new Headers(headerObj)
   })
 
@@ -158,8 +158,8 @@ function checkForRepoPage () {
   }
 }
 
-chrome.storage.sync.get(GITHUB_TOKEN_KEY, function (storedData) {
-  githubToken = storedData[GITHUB_TOKEN_KEY] || localStorage.getItem(GITHUB_TOKEN_KEY)
+chrome.storage.sync.get(GITHUB_TOKEN_KEY, function (data) {
+  githubToken = data[GITHUB_TOKEN_KEY]
 
   chrome.storage.onChanged.addListener(function (changes, namespace) {
     if (changes[GITHUB_TOKEN_KEY]) {
