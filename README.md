@@ -9,6 +9,21 @@ Automatically adds repository size to GitHub's repository summary.
 ![Screenshot of repository size on GitHub](https://raw.githubusercontent.com/harshjv/github-repo-size/master/screenshot.png)
 
 
+## Private Repository
+
+Generate a Github personal access token from [here](https://github.com/settings/tokens) and click on extension icon to add it.
+
+### Override token for some time
+
+You can set `x-github-token` in `localStorage` to your access token, and the extension will use this value even if you've previously set token.
+
+    localStorage.setItem('x-github-token', <YOUR-PERSONAL-ACCESS-TOKEN>)
+
+and then remove it to use previously set token;
+
+    localStorage.removeItem('x-github-token')
+
+
 ## Installation
 
 [![Install from chrome web store](https://developer.chrome.com/webstore/images/ChromeWebStore_Badge_v2_340x96.png)](https://chrome.google.com/webstore/detail/github-repository-size/apnjnioapinblneaedefcnopcjepgkci)
