@@ -1,6 +1,6 @@
 {
   "name": "GitHub Repository Size",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "manifest_version": 2,
   "description": "Automatically adds repository size to GitHub's repository summary",
   "homepage_url": "https://github.com/harshjv/github-repo-size",
@@ -12,8 +12,13 @@
   },
   "permissions": [
     "http://github.com/*",
-    "https://github.com/*"
+    "https://github.com/*",
+    "storage",
+    "activeTab"
   ],
+  "background" : {
+    "scripts" : [ "src/background.js" ]
+  },
   "content_scripts": [
     {
       "matches": [
@@ -25,5 +30,13 @@
       ],
       "run_at": "document_end"
     }
-  ]
+  ],
+  "browser_action": {
+    "default_icon": {
+      "16": "icons/ghrs16.png",
+      "48": "icons/ghrs48.png",
+      "128": "icons/ghrs128.png"
+    },
+    "default_title": "GitHub Repository Size: Click to set/remove access token"
+  }
 }

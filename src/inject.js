@@ -1,7 +1,10 @@
-/* global fetch, Request, Headers */
+/* global fetch, Request, Headers, chrome, localStorage */
 
 const API = 'https://api.github.com/repos/'
 const LI_TAG_ID = 'github-repo-size'
+const GITHUB_TOKEN_KEY = 'x-github-token'
+
+let githubToken
 
 function isTree (uri) {
   var repoURI = uri.split('/')
@@ -81,10 +84,18 @@ function parseJSON (response) {
 }
 
 function getAPIData (uri, callback) {
+  var headerObj = {
+    'User-Agent': 'harshjv/github-repo-size'
+  }
+
+  var token = githubToken || localStorage.getItem(GITHUB_TOKEN_KEY)
+
+  if (token) {
+    headerObj['Authorization'] = 'token ' + token
+  }
+
   var request = new Request(API + uri, {
-    headers: new Headers({
-      'User-Agent': 'harshjv/github-repo-size'
-    })
+    headers: new Headers(headerObj)
   })
 
   fetch(request)
@@ -147,6 +158,16 @@ function checkForRepoPage () {
   }
 }
 
-checkForRepoPage()
+chrome.storage.sync.get(GITHUB_TOKEN_KEY, function (storedData) {
+  githubToken = storedData[GITHUB_TOKEN_KEY] || localStorage.getItem(GITHUB_TOKEN_KEY)
 
-document.addEventListener('pjax:end', checkForRepoPage, false)
+  chrome.storage.onChanged.addListener(function (changes, namespace) {
+    if (changes[GITHUB_TOKEN_KEY]) {
+      githubToken = changes[GITHUB_TOKEN_KEY].newValue
+    }
+  })
+
+  document.addEventListener('pjax:end', checkForRepoPage, false)
+
+  checkForRepoPage()
+})
