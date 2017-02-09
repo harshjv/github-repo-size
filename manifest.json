@@ -13,6 +13,7 @@
   "permissions": [
     "http://github.com/*",
     "https://github.com/*",
+    "https://api.github.com/*",
     "storage",
     "activeTab"
   ],
