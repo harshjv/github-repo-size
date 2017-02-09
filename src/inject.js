@@ -158,7 +158,7 @@ function checkForRepoPage () {
   }
 }
 
-chrome.storage.sync.get(GITHUB_TOKEN_KEY, function (data) {
+chrome.storage.local.get(GITHUB_TOKEN_KEY, function (data) {
   githubToken = data[GITHUB_TOKEN_KEY]
 
   chrome.storage.onChanged.addListener(function (changes, namespace) {
