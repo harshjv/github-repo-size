@@ -3,11 +3,13 @@
 const GITHUB_TOKEN_KEY = 'x-github-token'
 const TOKEN_FEATURE_INFORMATION_KEY = 'user-knows-token-feature'
 
+const storage = chrome.storage.sync || chrome.storage.local
+
 function setGithubToken (key, cb) {
   const obj = {}
   obj[GITHUB_TOKEN_KEY] = key
 
-  chrome.storage.local.set(obj, function () {
+  storage.set(obj, function () {
     alert('Your Github token has been set successfully. Reload the Github page to see changes.')
 
     cb()
@@ -15,12 +17,12 @@ function setGithubToken (key, cb) {
 }
 
 function handleOldGithubToken (cb) {
-  chrome.storage.local.get(GITHUB_TOKEN_KEY, function (storedData) {
+  storage.get(GITHUB_TOKEN_KEY, function (storedData) {
     const oldGithubToken = storedData[GITHUB_TOKEN_KEY]
 
     if (oldGithubToken) {
       if (confirm('You have already set your Github token. Do you want to remove it?')) {
-        chrome.storage.local.remove(GITHUB_TOKEN_KEY, function () {
+        storage.remove(GITHUB_TOKEN_KEY, function () {
           alert('You have successfully removed Github token. Click extension icon again to set a new token.')
 
           cb(false)
@@ -38,11 +40,11 @@ function userNowKnowsAboutGithubTokenFeature (cb) {
   const obj = {}
   obj[TOKEN_FEATURE_INFORMATION_KEY] = true
 
-  chrome.storage.local.set(obj, cb)
+  storage.set(obj, cb)
 }
 
 function informUserAboutGithubTokenFeature () {
-  chrome.storage.local.get(TOKEN_FEATURE_INFORMATION_KEY, function (storedData) {
+  storage.get(TOKEN_FEATURE_INFORMATION_KEY, function (storedData) {
     const userKnows = storedData[TOKEN_FEATURE_INFORMATION_KEY]
 
     if (!userKnows) {

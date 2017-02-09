@@ -4,6 +4,8 @@ const API = 'https://api.github.com/repos/'
 const LI_TAG_ID = 'github-repo-size'
 const GITHUB_TOKEN_KEY = 'x-github-token'
 
+const storage = chrome.storage.sync || chrome.storage.local
+
 let githubToken
 
 function isTree (uri) {
@@ -158,7 +160,7 @@ function checkForRepoPage () {
   }
 }
 
-chrome.storage.local.get(GITHUB_TOKEN_KEY, function (data) {
+storage.get(GITHUB_TOKEN_KEY, function (data) {
   githubToken = data[GITHUB_TOKEN_KEY]
 
   chrome.storage.onChanged.addListener(function (changes, namespace) {
