@@ -11,9 +11,14 @@ Automatically adds repository size to GitHub's repository summary.
 
 ## Private Repository
 
-Generate a Github personal access token from [here](https://github.com/settings/tokens) and click on extension icon to add it.
+To enable viewing size of private repositories;
 
-### Override token for some time
+1. Install extension from chrome webstore, if you haven't.
+2. Go to https://github.com/settings/tokens to generate your personal access token.
+3. Click on the Github Repo Size extension (this extension)'s icon aside the address bar.
+4. Paste your access token there in the prompt box.
+
+### Temporarily override then token
 
 You can set `x-github-token` in `localStorage` to your access token, and the extension will use this value even if you've previously set token.
 
