@@ -3,6 +3,8 @@
 
 Automatically adds repository size to GitHub's repository summary.
 
+[![Install from chrome web store](https://developer.chrome.com/webstore/images/ChromeWebStore_Badge_v2_340x96.png)](https://chrome.google.com/webstore/detail/github-repository-size/apnjnioapinblneaedefcnopcjepgkci)
+
 
 ## Screenshot
 
@@ -27,13 +29,6 @@ You can set `x-github-token` in `localStorage` to your access token, and the ext
 and then remove it to use previously set token;
 
     localStorage.removeItem('x-github-token')
-
-
-## Installation
-
-[![Install from chrome web store](https://developer.chrome.com/webstore/images/ChromeWebStore_Badge_v2_340x96.png)](https://chrome.google.com/webstore/detail/github-repository-size/apnjnioapinblneaedefcnopcjepgkci)
-
-Install extension from [Chrome Web Store](https://chrome.google.com/webstore/detail/github-repository-size/apnjnioapinblneaedefcnopcjepgkci)
 
 
 ## Development
