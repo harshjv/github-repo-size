@@ -3,7 +3,7 @@
 
 Automatically adds repository size to GitHub's repository summary.
 
-[![Install from chrome web store](https://developer.chrome.com/webstore/images/ChromeWebStore_Badge_v2_340x96.png)](https://chrome.google.com/webstore/detail/github-repository-size/apnjnioapinblneaedefcnopcjepgkci)
+[![Featured on Product Hunt](./product-hunt.png)](https://www.producthunt.com/tech/github-repository-size) [![Install from chrome web store](https://developer.chrome.com/webstore/images/ChromeWebStore_Badge_v2_340x96.png)](https://chrome.google.com/webstore/detail/github-repository-size/apnjnioapinblneaedefcnopcjepgkci)
 
 
 ## Screenshot
