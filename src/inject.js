@@ -6,19 +6,21 @@ const GITHUB_TOKEN_KEY = 'x-github-token'
 
 let githubToken
 
-function isTree (uri) {
-  var repoURI = uri.split('/')
+const isTree = (uri) => {
+  const repoURI = uri.split('/')
+
   return repoURI.length === 2 || repoURI[2] === 'tree'
 }
 
-function getRepoInfoURI (uri) {
-  var repoURI = uri.split('/')
+const getRepoInfoURI = (uri) => {
+  const repoURI = uri.split('/')
+
   return repoURI[0] + '/' + repoURI[1]
 }
 
-function getRepoContentURI (uri) {
-  var repoURI = uri.split('/')
-  var treeBranch = repoURI.splice(2, 2, 'contents')
+const getRepoContentURI = (uri) => {
+  const repoURI = uri.split('/')
+  const treeBranch = repoURI.splice(2, 2, 'contents')
 
   if (treeBranch && treeBranch[1]) {
     repoURI.push('?ref=' + treeBranch[1])
@@ -27,7 +29,7 @@ function getRepoContentURI (uri) {
   return repoURI.join('/')
 }
 
-function getHumanReadableSizeObject (bytes) {
+const getHumanReadableSizeObject = (bytes) => {
   if (bytes === 0) {
     return {
       size: 0,
@@ -45,15 +47,17 @@ function getHumanReadableSizeObject (bytes) {
   }
 }
 
-function getHumanReadableSize (size) {
-  if (size === null) return ''
+const getHumanReadableSize = (size) => {
+  if (!size) return ''
 
-  var t = getHumanReadableSizeObject(size)
+  const t = getHumanReadableSizeObject(size)
+
   return t.size + ' ' + t.measure
 }
 
-function getSizeHTML (size) {
+const getSizeHTML = (size) => {
   const humanReadableSize = getHumanReadableSizeObject(size)
+
   return '<li id="' + LI_TAG_ID + '">' +
     '<a>' +
     '<svg class="octicon octicon-database" aria-hidden="true" height="16" version="1.1" viewBox="0 0 12 16" width="12">' +
@@ -67,7 +71,7 @@ function getSizeHTML (size) {
     '</li>'
 }
 
-function checkStatus (response) {
+const checkStatus = (response) => {
   if (response.status >= 200 && response.status < 300) {
     return response
   }
@@ -75,7 +79,7 @@ function checkStatus (response) {
   throw Error(`GitHub returned a bad status: ${response.status}`)
 }
 
-function parseJSON (response) {
+const parseJSON = (response) => {
   if (response) {
     return response.json()
   }
@@ -83,7 +87,7 @@ function parseJSON (response) {
   throw Error('Could not parse JSON')
 }
 
-function getAPIData (uri, callback) {
+const getAPIData = (uri, callback) => {
   const headerObj = {
     'User-Agent': 'harshjv/github-repo-size'
   }
@@ -105,20 +109,18 @@ function getAPIData (uri, callback) {
     .catch(e => console.error(e))
 }
 
-function getFileName (text) {
-  return text.trim().split('/')[0]
-}
+const getFileName = (text) => text.trim().split('/')[0]
 
-function checkForRepoPage () {
-  var repoURI = window.location.pathname.substring(1)
+const checkForRepoPage = () => {
+  const repoURI = window.location.pathname.substring(1)
 
   if (isTree(repoURI)) {
-    var ns = document.querySelector('ul.numbers-summary')
-    var liElem = document.getElementById(LI_TAG_ID)
-    var tdElems = document.querySelector('span.github-repo-size-td')
+    const ns = document.querySelector('ul.numbers-summary')
+    const liElem = document.getElementById(LI_TAG_ID)
+    const tdElems = document.querySelector('span.github-repo-size-td')
 
     if (ns && !liElem) {
-      getAPIData(getRepoInfoURI(repoURI), function (data) {
+      getAPIData(getRepoInfoURI(repoURI), (data) => {
         if (data && data.size) {
           ns.insertAdjacentHTML('beforeend', getSizeHTML(data.size * 1024))
         }
@@ -126,42 +128,43 @@ function checkForRepoPage () {
     }
 
     if (!tdElems) {
-      getAPIData(getRepoContentURI(repoURI), function (data) {
-        var sizeArray = {}
+      getAPIData(getRepoContentURI(repoURI), (data) => {
+        const sizeArray = {}
 
-        var upTree = document.querySelector('div.file-wrap > table > tbody > tr.up-tree > td > a.js-navigation-open')
+        const upTree = document.querySelector('div.file-wrap > table > tbody > tr.up-tree > td > a.js-navigation-open')
 
         if (upTree) {
           upTree.parentNode.parentNode.appendChild(document.createElement('td'))
         }
 
-        for (var item of data) {
+        for (const item of data) {
           sizeArray[item.name] = item.type !== 'dir' ? item.size : null
         }
 
-        var contents = document.querySelectorAll('div.file-wrap > table > tbody:last-child tr > td.content > span > a')
-        var ageForReference = document.querySelectorAll('div.file-wrap > table > tbody:last-child tr > td.age')
+        const list = document.querySelectorAll('table > tbody tr.js-navigation-item')
+        const files = document.querySelectorAll('table > tbody tr.js-navigation-item td.content a')
+        const ageForReference = document.querySelectorAll('table > tbody tr.js-navigation-item td:last-child')
 
-        var i = 0
+        let i = 0
 
-        for (var o of contents) {
-          var t = sizeArray[getFileName(o.text)]
+        for (const file of files) {
+          const t = sizeArray[getFileName(file.text)]
 
-          var td = document.createElement('td')
+          const td = document.createElement('td')
           td.className = 'age'
           td.innerHTML = '<span class="css-truncate css-truncate-target github-repo-size-td">' + getHumanReadableSize(t) + '</span>'
 
-          o.parentNode.parentNode.parentNode.insertBefore(td, ageForReference[i++])
+          list[i].insertBefore(td, ageForReference[i++])
         }
       })
     }
   }
 }
 
-chrome.storage.sync.get(GITHUB_TOKEN_KEY, function (data) {
+chrome.storage.sync.get(GITHUB_TOKEN_KEY, (data) => {
   githubToken = data[GITHUB_TOKEN_KEY]
 
-  chrome.storage.onChanged.addListener(function (changes, namespace) {
+  chrome.storage.onChanged.addListener((changes, namespace) => {
     if (changes[GITHUB_TOKEN_KEY]) {
       githubToken = changes[GITHUB_TOKEN_KEY].newValue
     }
