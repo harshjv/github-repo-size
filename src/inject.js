@@ -131,19 +131,13 @@ const checkForRepoPage = () => {
       getAPIData(getRepoContentURI(repoURI), (data) => {
         const sizeArray = {}
 
-        const upTree = document.querySelector('div.file-wrap > table > tbody > tr.up-tree > td > a.js-navigation-open')
-
-        if (upTree) {
-          upTree.parentNode.parentNode.appendChild(document.createElement('td'))
-        }
-
         for (const item of data) {
           sizeArray[item.name] = item.type !== 'dir' ? item.size : null
         }
 
-        const list = document.querySelectorAll('table > tbody tr.js-navigation-item')
-        const files = document.querySelectorAll('table > tbody tr.js-navigation-item td.content a')
-        const ageForReference = document.querySelectorAll('table > tbody tr.js-navigation-item td:last-child')
+        const list = document.querySelectorAll('table > tbody tr.js-navigation-item:not(.up-tree)')
+        const files = document.querySelectorAll('table > tbody tr.js-navigation-item:not(.up-tree) td.content a')
+        const ageForReference = document.querySelectorAll('table > tbody tr.js-navigation-item:not(.up-tree) td:last-child')
 
         let i = 0
 
