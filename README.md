@@ -17,6 +17,7 @@ To enable viewing size of private repositories;
 
 1. Install extension from chrome webstore, if you haven't.
 2. Go to https://github.com/settings/tokens to generate your personal access token.
+  - Check `repo` scope to enable this extension on private repo.
 3. Click on the Github Repo Size extension (this extension)'s icon aside the address bar.
 4. Paste your access token there in the prompt box.
 
