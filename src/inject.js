@@ -38,7 +38,7 @@ const getHumanReadableSizeObject = (bytes) => {
   }
 
   const K = 1024
-  const MEASURE = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+  const MEASURE = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
   const i = Math.floor(Math.log(bytes) / Math.log(K))
 
   return {
