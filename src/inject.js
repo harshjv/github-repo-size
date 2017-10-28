@@ -150,7 +150,6 @@ const checkForRepoPage = () => {
           if (item.path.startsWith(repoPath)) {
             const commonPathPrefix = item.path.replace(new RegExp('^' + repoPath + '/?'), '').split('/')[0]
             sizeArray[commonPathPrefix] = (sizeArray[commonPathPrefix] || 0) + (item.size || 0)
-            // console.log('getRepoTreeURI saved item: ' + commonPathPrefix + ' as ' + sizeArray[commonPathPrefix])
           }
         }
 
