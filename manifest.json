@@ -13,7 +13,9 @@
   "permissions": [
     "http://github.com/*",
     "https://github.com/*",
-    "storage"
+    "https://api.github.com/*",
+    "storage",
+    "activeTab"
   ],
   "background" : {
     "scripts" : [ "src/background.js" ]
