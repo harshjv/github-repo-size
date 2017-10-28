@@ -65,6 +65,8 @@ function informUserAboutGithubTokenFeature () {
 const askGithubToken = (cb) => {
   const githubToken = prompt('Please enter your Github token')
 
+  if (githubToken === null) return
+
   if (githubToken) {
     setGithubToken(githubToken, cb)
   } else {
