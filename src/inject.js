@@ -31,6 +31,20 @@ const getRepoContentURI = (uri) => {
   return repoURI.join('/')
 }
 
+const getRepoTreeURI = (uri) => {
+    const repoURI = uri.split('/')
+    const treeBranch = repoURI.splice(2)
+
+    repoURI.push('git/trees')
+    if (treeBranch && treeBranch[1]) {
+        repoURI.push(treeBranch[1])
+    } else {
+        repoURI.push('master')
+    }
+
+    return repoURI.join('/') + '?recursive=1'
+}
+
 const getHumanReadableSizeObject = (bytes) => {
   if (bytes === 0) {
     return {
@@ -113,6 +127,7 @@ const getFileName = (text) => text.trim().split('/')[0]
 
 const checkForRepoPage = () => {
   const repoURI = window.location.pathname.substring(1)
+  const repoPath = repoURI.split('/').splice(4).join('/').trim()
 
   if (isTree(repoURI)) {
     const ns = document.querySelector('ul.numbers-summary')
@@ -128,11 +143,14 @@ const checkForRepoPage = () => {
     }
 
     if (!tdElems) {
-      getAPIData(getRepoContentURI(repoURI), (data) => {
+      getAPIData(getRepoTreeURI(repoURI), (data) => {
         const sizeArray = {}
 
-        for (const item of data) {
-          sizeArray[item.name] = item.type !== 'dir' ? item.size : null
+        for (const item of data.tree) {
+          if (item.path.startsWith(repoPath)) {
+            const commonPathPrefix = item.path.replace(new RegExp('^' + repoPath + '/?'), '').split('/')[0]
+            sizeArray[commonPathPrefix] = (sizeArray[commonPathPrefix] || 0) + (item.size || 0)
+          }
         }
 
         const list = document.querySelectorAll('table > tbody tr.js-navigation-item:not(.up-tree)')
