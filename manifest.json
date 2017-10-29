@@ -11,9 +11,6 @@
     "128": "icons/ghrs128.png"
   },
   "permissions": [
-    "http://github.com/*",
-    "https://github.com/*",
-    "https://api.github.com/*",
     "storage",
     "activeTab"
   ],
