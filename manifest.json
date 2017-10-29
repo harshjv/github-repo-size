@@ -18,13 +18,14 @@
     "activeTab"
   ],
   "background" : {
-    "scripts" : [ "src/background.js" ]
+    "scripts" : [
+      "src/background.js"
+    ]
   },
   "content_scripts": [
     {
       "matches": [
-        "http://github.com/*",
-        "https://github.com/*"
+        "*://github.com/*"
       ],
       "js": [
         "src/inject.js"
