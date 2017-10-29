@@ -112,7 +112,8 @@ const getAPIData = (uri, callback) => {
 const getFileName = (text) => text.trim().split('/')[0]
 
 const checkForRepoPage = () => {
-  const repoURI = window.location.pathname.substring(1)
+  let repoURI = window.location.pathname.substring(1)
+  repoURI = repoURI.endsWith('/') ? repoURI.slice(0, -1) : repoURI
 
   if (isTree(repoURI)) {
     const ns = document.querySelector('ul.numbers-summary')
