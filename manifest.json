@@ -1,6 +1,6 @@
 {
   "name": "GitHub Repository Size",
-  "version": "0.3.2",
+  "version": "0.4.1",
   "manifest_version": 2,
   "description": "Automatically adds repository size to GitHub's repository summary",
   "homepage_url": "https://github.com/harshjv/github-repo-size",
@@ -11,18 +11,18 @@
     "128": "icons/ghrs128.png"
   },
   "permissions": [
-    "http://github.com/*",
-    "https://github.com/*",
-    "storage"
+    "storage",
+    "activeTab"
   ],
   "background" : {
-    "scripts" : [ "src/background.js" ]
+    "scripts" : [
+      "src/background.js"
+    ]
   },
   "content_scripts": [
     {
       "matches": [
-        "http://github.com/*",
-        "https://github.com/*"
+        "*://github.com/*"
       ],
       "js": [
         "src/inject.js"
