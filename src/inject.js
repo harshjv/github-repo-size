@@ -14,6 +14,16 @@ const isTree = (uri) => {
   return repoURI.length === 2 || repoURI[2] === 'tree'
 }
 
+const getRepoURI = () => {
+  const repoURI = window.location.pathname.substring(1)
+
+  return repoURI.endsWith('/') ? repoURI.slice(0, -1) : repoURI
+}
+
+const getRepoPath = () => {
+  return getRepoURI().split('/').splice(4).join('/').trim()
+}
+
 const getRepoInfoURI = (uri) => {
   const repoURI = uri.split('/')
 
@@ -32,17 +42,17 @@ const getRepoContentURI = (uri) => {
 }
 
 const getRepoTreeURI = (uri) => {
-    const repoURI = uri.split('/')
-    const treeBranch = repoURI.splice(2)
+  const repoURI = uri.split('/')
+  const treeBranch = repoURI.splice(2)
 
-    repoURI.push('git/trees')
-    if (treeBranch && treeBranch[1]) {
-        repoURI.push(treeBranch[1])
-    } else {
-        repoURI.push('master')
-    }
+  repoURI.push('git/trees')
+  if (treeBranch && treeBranch[1]) {
+    repoURI.push(treeBranch[1])
+  } else {
+    repoURI.push('master')
+  }
 
-    return repoURI.join('/') + '?recursive=1'
+  return repoURI.join('/') + '?recursive=1'
 }
 
 const getHumanReadableSizeObject = (bytes) => {
@@ -126,9 +136,7 @@ const getAPIData = (uri, callback) => {
 const getFileName = (text) => text.trim().split('/')[0]
 
 const checkForRepoPage = () => {
-  let repoURI = window.location.pathname.substring(1)
-  repoURI = repoURI.endsWith('/') ? repoURI.slice(0, -1) : repoURI
-  let repoPath = repoURI.split('/').splice(4).join('/').trim()
+  const repoURI = getRepoURI()
 
   if (isTree(repoURI)) {
     const ns = document.querySelector('ul.numbers-summary')
@@ -139,19 +147,19 @@ const checkForRepoPage = () => {
       getAPIData(getRepoInfoURI(repoURI), (data) => {
         if (data && data.size) {
           ns.insertAdjacentHTML('beforeend', getSizeHTML(data.size * 1024))
+          const newLiElem = document.getElementById(LI_TAG_ID)
+          newLiElem.onclick = loadFolderSizes
+          newLiElem.title = 'Click to load folder sizes'
         }
       })
     }
 
     if (!tdElems) {
-      getAPIData(getRepoTreeURI(repoURI), (data) => {
+      getAPIData(getRepoContentURI(repoURI), (data) => {
         const sizeArray = {}
 
-        for (const item of data.tree) {
-          if (item.path.startsWith(repoPath)) {
-            const commonPathPrefix = item.path.replace(new RegExp('^' + repoPath + '/?'), '').split('/')[0]
-            sizeArray[commonPathPrefix] = (sizeArray[commonPathPrefix] || 0) + (item.size || 0)
-          }
+        for (const item of data) {
+          sizeArray[item.name] = item.type !== 'dir' ? item.size : 'dir'
         }
 
         const list = document.querySelectorAll('table > tbody tr.js-navigation-item:not(.up-tree)')
@@ -165,13 +173,57 @@ const checkForRepoPage = () => {
 
           const td = document.createElement('td')
           td.className = 'age'
-          td.innerHTML = '<span class="css-truncate css-truncate-target github-repo-size-td">' + getHumanReadableSize(t) + '</span>'
+          let label
+          if (t === 'dir') {
+            label = '---'
+            td.className += ' github-repo-size-folder'
+            td.title = "Click to load folder size"
+            td.onclick = loadFolderSizes
+          } else {
+            label = getHumanReadableSize(t)
+          }
+          td.innerHTML = '<span class="css-truncate css-truncate-target github-repo-size-td">' + label + '</span>'
 
           list[i].insertBefore(td, ageForReference[i++])
         }
       })
     }
   }
+}
+
+const loadFolderSizes = () => {
+  const files = document.querySelectorAll('table > tbody tr.js-navigation-item:not(.up-tree) td.content a')
+  const folderSizes = document.querySelectorAll("td.github-repo-size-folder > span")
+
+  const liElem = document.getElementById(LI_TAG_ID)
+  if (liElem) {
+    liElem.onclick = null
+    liElem.title = null
+  }
+
+  for (const folderSize of folderSizes) {
+    folderSize.textContent = '...'
+    folderSize.parentElement.onclick = null
+  }
+
+  const repoURI = getRepoURI()
+  const repoPath = getRepoPath()
+
+  getAPIData(getRepoTreeURI(repoURI), (data) => {
+    const sizeArray = {}
+    for (const item of data.tree) {
+      if (item.path.startsWith(repoPath)) {
+        const commonPathPrefix = item.path.replace(new RegExp('^' + repoPath + '/?'), '').split('/')[0]
+        sizeArray[commonPathPrefix] = (sizeArray[commonPathPrefix] || 0) + (item.size || 0)
+      }
+    }
+
+    let i = 0
+    for (const folderSize of folderSizes) {
+      const t = sizeArray[getFileName(files[i++].text)]
+      folderSize.textContent = getHumanReadableSize(t)
+    }
+  })
 }
 
 storage.get(GITHUB_TOKEN_KEY, function (data) {
