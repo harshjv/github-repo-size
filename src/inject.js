@@ -193,7 +193,7 @@ const checkForRepoPage = () => {
 
 const loadFolderSizes = () => {
   const files = document.querySelectorAll('table > tbody tr.js-navigation-item:not(.up-tree) td.content a')
-  const folderSizes = document.querySelectorAll("td.github-repo-size-folder > span")
+  const folderSizes = document.querySelectorAll('td.github-repo-size-folder > span')
 
   const liElem = document.getElementById(LI_TAG_ID)
   if (liElem) {
@@ -210,6 +210,9 @@ const loadFolderSizes = () => {
   const repoPath = getRepoPath()
 
   getAPIData(getRepoTreeURI(repoURI), (data) => {
+    if (data.truncated) {
+      console.warn('github-repo-size: Data truncated. Folder size info may be incomplete.')
+    }
     const sizeArray = {}
     for (const item of data.tree) {
       if (item.path.startsWith(repoPath)) {
