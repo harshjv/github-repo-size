@@ -26,13 +26,13 @@ function handleOldGithubToken (cb) {
         storage.remove(GITHUB_TOKEN_KEY, function () {
           alert('You have successfully removed Github token. Click extension icon again to set a new token.')
 
-          cb(false)
+          cb(null, false)
         })
       } else {
-        cb(false)
+        cb(null, false)
       }
     } else {
-      cb(true)
+      cb(null, true)
     }
   })
 }
@@ -77,7 +77,7 @@ const askGithubToken = (cb) => {
 }
 
 chrome.browserAction.onClicked.addListener((tab) => {
-  handleOldGithubToken((askToSetToken) => {
+  handleOldGithubToken((_, askToSetToken) => {
     if (askToSetToken) {
       askGithubToken(() => {})
     }
