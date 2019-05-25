@@ -1,0 +1,22 @@
+{
+  "name": "github-repo-size",
+  "private": true,
+  "scripts": {
+    "zip": "bestzip extension.zip src/ icons/ manifest.json LICENSE.md",
+    "test": "standard"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stevennoto/github-repo-size.git"
+  },
+  "author": "Harsh Vakharia",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/stevennoto/github-repo-size/issues"
+  },
+  "homepage": "https://github.com/stevennoto/github-repo-size#readme",
+  "devDependencies": {
+    "bestzip": "^2.1.4",
+    "standard": "^12.0.1"
+  }
+}
