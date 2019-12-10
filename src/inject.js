@@ -36,7 +36,7 @@ const getRepoObject = () => {
   }
 }
 
-const getHumanReadableSizeObject = (bytes) => {
+const getHumanReadableSizeObject = (bytes, selectedMeasure = 'auto') => {
   if (bytes === 0) {
     return {
       size: 0,
@@ -46,7 +46,16 @@ const getHumanReadableSizeObject = (bytes) => {
 
   const K = 1024
   const MEASURE = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
-  const i = Math.floor(Math.log(bytes) / Math.log(K))
+
+  let i = Math.floor(Math.log(bytes) / Math.log(K))
+
+  if (selectedMeasure !== 'auto') {
+    for (let size in MEASURE) {
+      if (MEASURE[size] === selectedMeasure) {
+        i = size
+      }
+    }
+  }  
 
   return {
     size: parseFloat((bytes / Math.pow(K, i)).toFixed(2)),
@@ -54,10 +63,10 @@ const getHumanReadableSizeObject = (bytes) => {
   }
 }
 
-const getHumanReadableSize = (size) => {
+const getHumanReadableSize = (size, selectedSize = 'auto') => {
   if (!size) return ''
 
-  const t = getHumanReadableSizeObject(size)
+  const t = getHumanReadableSizeObject(size, selectedSize)
 
   return t.size + ' ' + t.measure
 }
@@ -72,6 +81,24 @@ const getSizeHTML = (size) => {
     '</svg>',
     `<span class="num text-emphasized"> ${humanReadableSize.size}</span> ${humanReadableSize.measure}`,
     '</li>'
+  ].join('')
+}
+
+const getSelectHTML = (selectedMeasure = 'auto') => {
+
+  return [
+    `<select id="chooseMeasure">`,
+    `<option value="auto" ${selectedMeasure === 'auto' ? 'selected' : ''}>auto</option>`,
+    `<option value="B" ${selectedMeasure === 'B' ? 'selected' : ''}>B</option>`,
+    `<option value="KB" ${selectedMeasure === 'KB' ? 'selected' : ''}>KB</option>`,
+    `<option value="MB" ${selectedMeasure === 'MB' ? 'selected' : ''}>MB</option>`,
+    `<option value="GB" ${selectedMeasure === 'GB' ? 'selected' : ''}>GB</option>`,
+    `<option value="TB" ${selectedMeasure === 'TB' ? 'selected' : ''}>TB</option>`,
+    `<option value="PB" ${selectedMeasure === 'PB' ? 'selected' : ''}>PB</option>`,
+    `<option value="EB" ${selectedMeasure === 'EB' ? 'selected' : ''}>EB</option>`,
+    `<option value="ZB" ${selectedMeasure === 'ZB' ? 'selected' : ''}>ZB</option>`,
+    `<option value="YB" ${selectedMeasure === 'YB' ? 'selected' : ''}>YB</option>`,
+    `</select>`
   ].join('')
 }
 
@@ -106,7 +133,7 @@ const getAPIData = (uri) => {
 
 const getFileName = text => text.trim().split('/')[0]
 
-const checkForRepoPage = async () => {
+const checkForRepoPage = async (selectedMeasure = 'auto') => {
   const repoObj = getRepoObject()
   if (!repoObj) return
 
@@ -139,6 +166,16 @@ const checkForRepoPage = async () => {
   let items = document.querySelectorAll('table tbody tr.js-navigation-item td:nth-child(2) a')
   let ageForReference = document.querySelectorAll('table tbody tr.js-navigation-item td:last-child')
 
+  const th = document.querySelector('th:last-child');
+  th.style.textAlign = 'right'
+  th.style.paddingRight = '10px'
+  th.style.fontWeight = 'normal'
+  th.innerHTML = getSelectHTML(selectedMeasure)
+  const select = document.querySelector('#chooseMeasure')
+  select.title = 'Choose measure'
+  select.style.cssText = 'cursor: pointer'
+  select.onchange = recountSizes
+
   if (!list) {
     await new Promise((resolve, reject) => {
       setTimeout(function () {
@@ -168,13 +205,19 @@ const checkForRepoPage = async () => {
     } else if (t === '..') {
       label = ''
     } else {
-      label = getHumanReadableSize(t)
+      label = getHumanReadableSize(t, selectedMeasure)
     }
 
     td.innerHTML = `<span class="css-truncate css-truncate-target github-repo-size-td">${label}</span>`
 
     list[i].insertBefore(td, ageForReference[i++])
   }
+}
+
+const recountSizes = (e) => {  
+  const oldTdElems = document.querySelectorAll('span.github-repo-size-td')
+  oldTdElems.forEach(el => el.parentNode.remove())
+  checkForRepoPage(e.target.value)
 }
 
 const loadFolderSizes = async () => {
