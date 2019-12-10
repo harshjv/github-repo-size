@@ -148,7 +148,7 @@ const checkForRepoPage = async (selectedMeasure = 'auto') => {
         const newLiElem = document.getElementById(LI_TAG_ID)
         newLiElem.title = 'Click to load folder sizes'
         newLiElem.style.cssText = 'cursor: pointer'
-        newLiElem.onclick = loadFolderSizes
+        newLiElem.onclick = () => loadFolderSizes(selectedMeasure)
       }
     })
   }
@@ -201,7 +201,7 @@ const checkForRepoPage = async (selectedMeasure = 'auto') => {
       td.className += ' github-repo-size-folder'
       td.title = 'Click to load folder size'
       td.style.cssText = 'cursor: pointer'
-      td.onclick = loadFolderSizes
+      td.onclick = () => loadFolderSizes(selectedMeasure)
     } else if (t === '..') {
       label = ''
     } else {
@@ -214,13 +214,14 @@ const checkForRepoPage = async (selectedMeasure = 'auto') => {
   }
 }
 
-const recountSizes = (e) => {  
+const recountSizes = (e) => {
   const oldTdElems = document.querySelectorAll('span.github-repo-size-td')
   oldTdElems.forEach(el => el.parentNode.remove())
+  document.querySelector('#' + LI_TAG_ID).remove()
   checkForRepoPage(e.target.value)
 }
 
-const loadFolderSizes = async () => {
+const loadFolderSizes = async (selectedSize = auto) => {
   const files = document.querySelectorAll('table tbody tr.js-navigation-item:not(.up-tree) td.content a')
   const folderSizes = document.querySelectorAll('td.github-repo-size-folder > span')
   const liElem = document.getElementById(LI_TAG_ID)
@@ -265,7 +266,7 @@ const loadFolderSizes = async () => {
 
   for (const folderSize of folderSizes) {
     const t = sizeObj[getFileName(files[i++].text)]
-    folderSize.textContent = getHumanReadableSize(t)
+    folderSize.textContent = getHumanReadableSize(t, selectedSize)
   }
 }
 
