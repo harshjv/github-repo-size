@@ -64,7 +64,6 @@ const getHumanReadableSize = (size) => {
 
 const getSizeHTML = (size) => {
   const humanReadableSize = getHumanReadableSizeObject(size)
-
   return [ 
     `<li id="${LI_TAG_ID}">`,
     `<a>`,
@@ -73,8 +72,7 @@ const getSizeHTML = (size) => {
     '</svg>',
     `<span class="num text-emphasized"> ${humanReadableSize.size}</span> ${humanReadableSize.measure}`,
     '</a>',
-    '</li>'
-      
+    '</li>'     
   ].join('')
 }
 
