@@ -132,7 +132,7 @@ const checkForRepoPage = async () => {
   const tree = await getAPIData(`${repoObj.repo}/contents/${repoObj.currentPath}?ref=${repoObj.ref}`)
   const sizeObj = { '..': '..' }
 
-  for (let item of tree) {
+  for (let item of Object.keys(tree)) {
     sizeObj[item.name] = item.type !== 'dir' ? item.size : 'dir'
   }
 
@@ -185,7 +185,7 @@ const loadFolderSizes = async () => {
 
   if (liElem) {
     liElem.onclick = null
-    liElem.title = null
+    liElem.title = 'Folder sizes loaded'
   }
 
   for (let folderSize of folderSizes) {
