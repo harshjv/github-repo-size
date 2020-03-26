@@ -185,7 +185,7 @@ const loadFolderSizes = async () => {
 
   if (liElem) {
     liElem.onclick = null
-    liElem.title = "Folder sizes loaded"
+    liElem.title = null
   }
 
   for (let folderSize of folderSizes) {
