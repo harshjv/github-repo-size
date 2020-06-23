@@ -1,7 +1,7 @@
 /* global fetch, Request, Headers, chrome, localStorage */
 
 const API = 'https://api.github.com/repos/'
-const LI_TAG_ID = 'github-repo-size'
+const NAV_ELEM_ID = 'github-repo-size'
 const GITHUB_TOKEN_KEY = 'x-github-token'
 
 const storage = chrome.storage.sync || chrome.storage.local
@@ -65,14 +65,16 @@ const getHumanReadableSize = (size) => {
 const getSizeHTML = (size) => {
   const humanReadableSize = getHumanReadableSizeObject(size)
 
-  return [
-    `<li id="${LI_TAG_ID}">`,
-    '<svg class="octicon octicon-database" aria-hidden="true" height="16" version="1.1" viewBox="0 0 12 16" width="12">',
-    '<path d="M6 15c-3.31 0-6-.9-6-2v-2c0-.17.09-.34.21-.5.67.86 3 1.5 5.79 1.5s5.12-.64 5.79-1.5c.13.16.21.33.21.5v2c0 1.1-2.69 2-6 2zm0-4c-3.31 0-6-.9-6-2V7c0-.11.04-.21.09-.31.03-.06.07-.13.12-.19C.88 7.36 3.21 8 6 8s5.12-.64 5.79-1.5c.05.06.09.13.12.19.05.1.09.21.09.31v2c0 1.1-2.69 2-6 2zm0-4c-3.31 0-6-.9-6-2V3c0-1.1 2.69-2 6-2s6 .9 6 2v2c0 1.1-2.69 2-6 2zm0-5c-2.21 0-4 .45-4 1s1.79 1 4 1 4-.45 4-1-1.79-1-4-1z"></path>',
-    '</svg>',
-    `<span class="num text-emphasized"> ${humanReadableSize.size}</span> ${humanReadableSize.measure}`,
-    '</li>'
-  ].join('')
+  return `
+<li class="d-flex" id="${NAV_ELEM_ID}">
+  <a class="js-selected-navigation-item UnderlineNav-item hx_underlinenav-item no-wrap js-responsive-underlinenav-item" data-tab-item="settings-tab" style="cursor: pointer">
+    <svg class="octicon octicon-gear UnderlineNav-octicon d-none d-sm-inline" display="none inline" aria-hidden="true" height="16" version="1.1" viewBox="0 0 12 16" width="12">
+    <path d="M6 15c-3.31 0-6-.9-6-2v-2c0-.17.09-.34.21-.5.67.86 3 1.5 5.79 1.5s5.12-.64 5.79-1.5c.13.16.21.33.21.5v2c0 1.1-2.69 2-6 2zm0-4c-3.31 0-6-.9-6-2V7c0-.11.04-.21.09-.31.03-.06.07-.13.12-.19C.88 7.36 3.21 8 6 8s5.12-.64 5.79-1.5c.05.06.09.13.12.19.05.1.09.21.09.31v2c0 1.1-2.69 2-6 2zm0-4c-3.31 0-6-.9-6-2V3c0-1.1 2.69-2 6-2s6 .9 6 2v2c0 1.1-2.69 2-6 2zm0-5c-2.21 0-4 .45-4 1s1.79 1 4 1 4-.45 4-1-1.79-1-4-1z"></path>
+    </svg>
+    <span data-content="Settings">${humanReadableSize.size} ${humanReadableSize.measure}</span>
+  </a>
+</li>
+`
 }
 
 const checkStatus = (response) => {
@@ -81,6 +83,7 @@ const checkStatus = (response) => {
   }
 
   console.error(response)
+
   throw Error(`GitHub returned an invalid status: ${response.status}`)
 }
 
@@ -92,7 +95,7 @@ const getAPIData = (uri) => {
   const token = localStorage.getItem(GITHUB_TOKEN_KEY) || githubToken
 
   if (token) {
-    headerObj['Authorization'] = 'token ' + token
+    headerObj.Authorization = 'token ' + token
   }
 
   const request = new Request(`${API}${uri}`, {
@@ -110,18 +113,34 @@ const checkForRepoPage = async () => {
   const repoObj = getRepoObject()
   if (!repoObj) return
 
-  const ns = document.querySelector('ul.numbers-summary')
-  const liElem = document.getElementById(LI_TAG_ID)
-  const tdElems = document.querySelector('span.github-repo-size-td')
+  // wait for the table to load
+  await new Promise((resolve, reject) => {
+    function loading () {
+      return !!document.querySelector('div[role="gridcell"] div.Skeleton')
+    }
 
-  if (ns && !liElem) {
+    if (!loading()) return resolve()
+
+    const interval = setInterval(() => {
+      if (!loading()) {
+        clearInterval(interval)
+        resolve()
+      }
+    }, 100)
+  })
+
+  const ns = document.querySelector('ul.UnderlineNav-body')
+  const navElem = document.getElementById(NAV_ELEM_ID)
+  const tdElems = document.querySelector('span.github-repo-size-div')
+
+  if (ns && !navElem) {
     getAPIData(repoObj.repo).then(summary => {
       if (summary && summary.size) {
         ns.insertAdjacentHTML('beforeend', getSizeHTML(summary.size * 1024))
-        const newLiElem = document.getElementById(LI_TAG_ID)
-        newLiElem.title = 'Click to load folder sizes'
+        const newLiElem = document.getElementById(NAV_ELEM_ID)
+        newLiElem.title = 'Click to load directory sizes'
         newLiElem.style.cssText = 'cursor: pointer'
-        newLiElem.onclick = loadFolderSizes
+        newLiElem.onclick = loadDirSizes
       }
     })
   }
@@ -131,66 +150,59 @@ const checkForRepoPage = async () => {
   const tree = await getAPIData(`${repoObj.repo}/contents/${repoObj.currentPath}?ref=${repoObj.ref}`)
   const sizeObj = { '..': '..' }
 
-  for (let item of tree) {
+  tree.forEach(item => {
     sizeObj[item.name] = item.type !== 'dir' ? item.size : 'dir'
-  }
+  })
 
-  let list = document.querySelectorAll('table tbody tr.js-navigation-item')
-  let items = document.querySelectorAll('table tbody tr.js-navigation-item td:nth-child(2) a')
-  let ageForReference = document.querySelectorAll('table tbody tr.js-navigation-item td:last-child')
+  const list = [...document.querySelectorAll('div[role="row"].Box-row')]
+  const items = [...document.querySelectorAll('div[role="row"].Box-row div[role="rowheader"] a')]
+  const ageForReference = document.querySelectorAll('div[role="row"].Box-row div[role="gridcell"]:last-child')
 
-  if (!list) {
-    await new Promise((resolve, reject) => {
-      setTimeout(function () {
-        list = document.querySelectorAll('table tbody tr.js-navigation-item')
-        items = document.querySelectorAll('table tbody tr.js-navigation-item td:nth-child(2) a')
-        ageForReference = document.querySelectorAll('table tbody tr.js-navigation-item td:last-child')
-      }, 1000)
-    })
-  }
+  items.forEach((item, index) => {
+    const filename = getFileName(item.text)
+    const t = sizeObj[filename]
 
-  let i = 0
+    const div = document.createElement('div')
+    div.setAttribute('role', 'gridcell')
 
-  for (let item of items) {
-    const t = sizeObj[getFileName(item.text)]
-
-    const td = document.createElement('td')
-    td.className = 'age'
+    div.style.cssText = 'width: 80px'
+    div.className = 'text-gray-light text-right mr-3'
 
     let label
 
     if (t === 'dir') {
       label = '&middot;&middot;&middot;'
-      td.className += ' github-repo-size-folder'
-      td.title = 'Click to load folder size'
-      td.style.cssText = 'cursor: pointer'
-      td.onclick = loadFolderSizes
+      div.className += ' github-repo-size-dir'
+      div.title = 'Click to load directory size'
+      div.style.cssText = 'cursor: pointer; width: 80px'
+      div.onclick = loadDirSizes
+      div.setAttribute('data-dirname', filename)
     } else if (t === '..') {
       label = ''
     } else {
       label = getHumanReadableSize(t)
     }
 
-    td.innerHTML = `<span class="css-truncate css-truncate-target github-repo-size-td">${label}</span>`
+    div.innerHTML = `<span class="css-truncate css-truncate-target d-block width-fit github-repo-size-div">${label}</span>`
 
-    list[i].insertBefore(td, ageForReference[i++])
-  }
+    list[index].insertBefore(div, ageForReference[index])
+  })
 }
 
-const loadFolderSizes = async () => {
-  const files = document.querySelectorAll('table tbody tr.js-navigation-item:not(.up-tree) td.content a')
-  const folderSizes = document.querySelectorAll('td.github-repo-size-folder > span')
-  const liElem = document.getElementById(LI_TAG_ID)
+const loadDirSizes = async () => {
+  const files = [...document.querySelectorAll('div[role="row"].Box-row div[role="rowheader"] a')]
+  const dirSizes = [...document.querySelectorAll('div.github-repo-size-dir span')]
+  const navElem = document.getElementById(NAV_ELEM_ID)
 
-  if (liElem) {
-    liElem.onclick = null
-    liElem.title = null
+  if (navElem) {
+    navElem.onclick = null
+    navElem.title = null
   }
 
-  for (let folderSize of folderSizes) {
-    folderSize.textContent = '...'
-    folderSize.parentElement.onclick = null
-  }
+  dirSizes.forEach(dir => {
+    dir.textContent = '...'
+    dir.parentElement.onclick = null
+  })
 
   const repoObj = getRepoObject()
   if (!repoObj) return
@@ -198,13 +210,13 @@ const loadFolderSizes = async () => {
   const data = await getAPIData(`${repoObj.repo}/git/trees/${repoObj.ref}?recursive=1`)
 
   if (data.truncated) {
-    console.warn('github-repo-size: Data truncated. Folder size info may be incomplete.')
+    console.warn('github-repo-size: Data truncated. Directory size info may be incomplete.')
   }
 
   const sizeObj = {}
 
-  for (let item of data.tree) {
-    if (!item.path.startsWith(repoObj.currentPath)) continue
+  data.tree.forEach(item => {
+    if (!item.path.startsWith(repoObj.currentPath)) return
 
     const arr = item.path
       .replace(new RegExp(`^${repoObj.currentPath}`), '')
@@ -216,14 +228,18 @@ const loadFolderSizes = async () => {
       if (sizeObj[dir] === undefined) sizeObj[dir] = 0
       sizeObj[dir] += item.size
     }
-  }
+  })
 
-  let i = 0
+  files.forEach(file => {
+    const dirname = getFileName(file.text)
+    const t = sizeObj[dirname]
 
-  for (const folderSize of folderSizes) {
-    const t = sizeObj[getFileName(files[i++].text)]
-    folderSize.textContent = getHumanReadableSize(t)
-  }
+    const dir = dirSizes.find(dir => dir.parentElement.getAttribute('data-dirname') === dirname)
+
+    if (dir) {
+      dir.textContent = getHumanReadableSize(t)
+    }
+  })
 }
 
 storage.get(GITHUB_TOKEN_KEY, function (data) {
