@@ -21,7 +21,7 @@ To enable viewing size of private repositories;
 3. Click on the Github Repo Size extension (this extension)'s icon aside the address bar.
 4. Paste your access token there in the prompt box.
 
-### Temporarily override then token
+### Temporarily override the token
 
 You can set `x-github-token` in `localStorage` to your access token, and the extension will use this value even if you've previously set token.
 
