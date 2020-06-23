@@ -196,7 +196,7 @@ const loadDirSizes = async () => {
 
   if (navElem) {
     navElem.onclick = null
-    navElem.title = null
+    navElem.title = 'Loading directory sizes...'
   }
 
   dirSizes.forEach(dir => {
@@ -240,6 +240,10 @@ const loadDirSizes = async () => {
       dir.textContent = getHumanReadableSize(t)
     }
   })
+
+  if (navElem) {
+    navElem.title = 'Directory sizes loaded successfully'
+  }
 }
 
 storage.get(GITHUB_TOKEN_KEY, function (data) {
