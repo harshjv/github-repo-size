@@ -132,20 +132,24 @@ const checkForRepoPage = async () => {
   const ns = document.querySelector('ul.UnderlineNav-body')
   const navElem = document.getElementById(NAV_ELEM_ID)
   const tdElems = document.querySelector('span.github-repo-size-div')
+  
+  // whether 'add file' button is present
+  const viewingDir = document.querySelector('div.file-navigation.mb-3.d-flex.flex-items-start > div.d-flex > details > summary > span.btn.d-none.d-md-flex.flex-items-center') && true
 
   if (ns && !navElem) {
     getAPIData(repoObj.repo).then(summary => {
       if (summary && summary.size) {
         ns.insertAdjacentHTML('beforeend', getSizeHTML(summary.size * 1024))
         const newLiElem = document.getElementById(NAV_ELEM_ID)
-        newLiElem.title = 'Click to load directory sizes'
-        newLiElem.style.cssText = 'cursor: pointer'
-        newLiElem.onclick = loadDirSizes
+        if(viewingDir) {
+          newLiElem.title = 'Click to load directory sizes'
+          newLiElem.onclick = loadDirSizes
+        }
       }
     })
   }
 
-  if (tdElems) return
+  if (!viewingDir || tdElems) return
 
   const tree = await getAPIData(`${repoObj.repo}/contents/${repoObj.currentPath}?ref=${repoObj.ref}`)
   const sizeObj = { '..': '..' }
