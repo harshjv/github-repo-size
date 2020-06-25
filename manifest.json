@@ -11,8 +11,7 @@
     "128": "icons/ghrs128.png"
   },
   "permissions": [
-    "storage",
-    "activeTab"
+    "storage"
   ],
   "background" : {
     "scripts" : [
