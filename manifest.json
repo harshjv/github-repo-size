@@ -21,7 +21,7 @@
   "content_scripts": [
     {
       "matches": [
-        "*://github.com/*"
+        "https://github.com/*"
       ],
       "js": [
         "src/inject.js"
