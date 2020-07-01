@@ -201,7 +201,7 @@ const loadDirSizes = async () => {
   const sizeElem = document.getElementById(SIZE_ELEM_ID)
 
   if (sizeElem) {
-    sizeElem.onclick = null
+    sizeElem.removeEventListener('click', loadDirSizes)
     sizeElem.title = 'Loading directory sizes...'
   }
 
