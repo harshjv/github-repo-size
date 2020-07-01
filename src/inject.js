@@ -137,6 +137,8 @@ const checkForRepoPage = async () => {
   })
 
   const repoDetails = document.querySelector('div.Details')
+  if (!repoDetails) return
+  
   const repoStats = repoDetails.lastElementChild.lastElementChild
 
   const sizeElem = document.getElementById(SIZE_ELEM_ID)
