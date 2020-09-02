@@ -16,7 +16,7 @@
   },
   "homepage": "https://github.com/stevennoto/github-repo-size#readme",
   "devDependencies": {
-    "bestzip": "^2.1.4",
+    "bestzip": "^2.1.7",
     "standard": "^12.0.1"
   }
 }
