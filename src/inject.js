@@ -1,8 +1,13 @@
 /* global fetch, Request, Headers, chrome, localStorage */
 
 const API = 'https://api.github.com/repos/'
-const NAV_ELEM_ID = 'github-repo-size'
+const SIZE_ELEM_ID = 'github-repo-size'
 const GITHUB_TOKEN_KEY = 'x-github-token'
+const BUTTON_LINK_STYLE = `"
+  background-color: rgba(0,0,0,0);
+  border-style: none;
+  padding: 0;
+"`
 
 const storage = chrome.storage.sync || chrome.storage.local
 
@@ -66,14 +71,13 @@ const getSizeHTML = (size) => {
   const humanReadableSize = getHumanReadableSizeObject(size)
 
   return `
-<li class="d-flex" id="${NAV_ELEM_ID}">
-  <a class="js-selected-navigation-item UnderlineNav-item hx_underlinenav-item no-wrap js-responsive-underlinenav-item" data-tab-item="settings-tab" style="cursor: pointer">
-    <svg class="octicon octicon-gear UnderlineNav-octicon d-none d-sm-inline" display="none inline" aria-hidden="true" height="16" version="1.1" viewBox="0 0 12 16" width="12">
-    <path d="M6 15c-3.31 0-6-.9-6-2v-2c0-.17.09-.34.21-.5.67.86 3 1.5 5.79 1.5s5.12-.64 5.79-1.5c.13.16.21.33.21.5v2c0 1.1-2.69 2-6 2zm0-4c-3.31 0-6-.9-6-2V7c0-.11.04-.21.09-.31.03-.06.07-.13.12-.19C.88 7.36 3.21 8 6 8s5.12-.64 5.79-1.5c.05.06.09.13.12.19.05.1.09.21.09.31v2c0 1.1-2.69 2-6 2zm0-4c-3.31 0-6-.9-6-2V3c0-1.1 2.69-2 6-2s6 .9 6 2v2c0 1.1-2.69 2-6 2zm0-5c-2.21 0-4 .45-4 1s1.79 1 4 1 4-.45 4-1-1.79-1-4-1z"></path>
-    </svg>
-    <span data-content="Settings">${humanReadableSize.size} ${humanReadableSize.measure}</span>
-  </a>
-</li>
+    <button id="${SIZE_ELEM_ID}" class="ml-3 Link--primary no-underline" style=${BUTTON_LINK_STYLE} title="Click to load directory sizes">
+      <svg height="16" class="octicon octicon-tag text-gray" text="gray" viewBox="0 0 16 16" version="1.1" width="16" aria-hidden="true">
+        <path d="M6 15c-3.31 0-6-.9-6-2v-2c0-.17.09-.34.21-.5.67.86 3 1.5 5.79 1.5s5.12-.64 5.79-1.5c.13.16.21.33.21.5v2c0 1.1-2.69 2-6 2zm0-4c-3.31 0-6-.9-6-2V7c0-.11.04-.21.09-.31.03-.06.07-.13.12-.19C.88 7.36 3.21 8 6 8s5.12-.64 5.79-1.5c.05.06.09.13.12.19.05.1.09.21.09.31v2c0 1.1-2.69 2-6 2zm0-4c-3.31 0-6-.9-6-2V3c0-1.1 2.69-2 6-2s6 .9 6 2v2c0 1.1-2.69 2-6 2zm0-5c-2.21 0-4 .45-4 1s1.79 1 4 1 4-.45 4-1-1.79-1-4-1z"></path>
+      </svg>
+      <strong>${humanReadableSize.size}</strong>
+      <span class="color-text-tertiary">${humanReadableSize.measure}</span>
+    </button>
 `
 }
 
@@ -129,18 +133,19 @@ const checkForRepoPage = async () => {
     }, 100)
   })
 
-  const ns = document.querySelector('ul.UnderlineNav-body')
-  const navElem = document.getElementById(NAV_ELEM_ID)
+  const repoDetails = document.querySelector('div.file-navigation')
+  if (!repoDetails) return
+
+  const repoStats = repoDetails.children[1]
+
+  const sizeElem = document.getElementById(SIZE_ELEM_ID)
   const tdElems = document.querySelector('span.github-repo-size-div')
 
-  if (ns && !navElem) {
+  if (repoStats && !sizeElem) {
     getAPIData(repoObj.repo).then(summary => {
       if (summary && summary.size) {
-        ns.insertAdjacentHTML('beforeend', getSizeHTML(summary.size * 1024))
-        const newLiElem = document.getElementById(NAV_ELEM_ID)
-        newLiElem.title = 'Click to load directory sizes'
-        newLiElem.style.cssText = 'cursor: pointer'
-        newLiElem.onclick = loadDirSizes
+        repoStats.insertAdjacentHTML('beforeend', getSizeHTML(summary.size * 1024))
+        document.getElementById(SIZE_ELEM_ID).addEventListener('click', loadDirSizes)
       }
     })
   }
@@ -192,15 +197,15 @@ const checkForRepoPage = async () => {
 const loadDirSizes = async () => {
   const files = [...document.querySelectorAll('div[role="row"].Box-row div[role="rowheader"] a')]
   const dirSizes = [...document.querySelectorAll('div.github-repo-size-dir span')]
-  const navElem = document.getElementById(NAV_ELEM_ID)
+  const sizeElem = document.getElementById(SIZE_ELEM_ID)
 
-  if (navElem) {
-    navElem.onclick = null
-    navElem.title = 'Loading directory sizes...'
+  if (sizeElem) {
+    sizeElem.removeEventListener('click', loadDirSizes)
+    sizeElem.title = 'Loading directory sizes...'
   }
 
   dirSizes.forEach(dir => {
-    dir.textContent = '...'
+    dir.textContent = '···'
     dir.parentElement.onclick = null
   })
 
@@ -238,11 +243,13 @@ const loadDirSizes = async () => {
 
     if (dir) {
       dir.textContent = getHumanReadableSize(t)
+      dir.parentElement.title = ""
+      dir.parentElement.style.cursor = "auto"
     }
   })
 
-  if (navElem) {
-    navElem.title = 'Directory sizes loaded successfully'
+  if (sizeElem) {
+    sizeElem.title = 'Directory sizes loaded successfully'
   }
 }
 
