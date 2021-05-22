@@ -11,7 +11,7 @@ function setGithubToken (key, cb) {
   obj[GITHUB_TOKEN_KEY] = key
 
   storage.set(obj, function () {
-    alert('Your Github token has been set successfully. Reload the Github page to see changes.')
+    alert('Your GitHub token has been set successfully. Reload the GitHub page to see changes.')
 
     cb()
   })
@@ -22,9 +22,9 @@ function handleOldGithubToken (cb) {
     const oldGithubToken = storedData[GITHUB_TOKEN_KEY]
 
     if (oldGithubToken) {
-      if (confirm('You have already set your Github token. Do you want to remove it?')) {
+      if (confirm('You have already set your GitHub token. Do you want to remove it?')) {
         storage.remove(GITHUB_TOKEN_KEY, function () {
-          alert('You have successfully removed Github token. Click extension icon again to set a new token.')
+          alert('You have successfully removed your GitHub token. Click the extension icon again to set a new token.')
 
           cb(null, false)
         })
@@ -49,7 +49,7 @@ function informUserAboutGithubTokenFeature () {
     const userKnows = storedData[TOKEN_FEATURE_INFORMATION_KEY]
 
     if (!userKnows) {
-      if (confirm('GitHub Repository Size now supports private repositories through Github personal access tokens. Do you want to add a token?')) {
+      if (confirm('GitHub Repository Size supports private repositories through a GitHub personal access token (with "repo" scope). Do you want to add it now?')) {
         askGithubToken(() => {
           userNowKnowsAboutGithubTokenFeature(() => {})
         })
@@ -63,7 +63,7 @@ function informUserAboutGithubTokenFeature () {
 }
 
 const askGithubToken = (cb) => {
-  const githubToken = prompt('Please enter your Github token')
+  const githubToken = prompt('Please enter your GitHub token (requires "repo" scope)')
 
   if (githubToken === null) return
 
