@@ -11,10 +11,16 @@
     "128": "icons/ghrs128.png"
   },
   "permissions": [
-    "storage"
+    "storage",
+    "contextMenus",
+		"activeTab"
   ],
+  "optional_permissions": [
+		"*://*/*"
+	],
   "background" : {
     "scripts" : [
+      "webext-domain-permission-toggle.js",
       "src/background.js"
     ]
   },
