@@ -1,3 +1,6 @@
+// Injects an option to add a domain toggle
+addDomainPermissionToggle()
+
 /* global chrome, alert, prompt, confirm */
 
 const GITHUB_TOKEN_KEY = 'x-github-token'
