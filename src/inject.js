@@ -67,11 +67,11 @@ const getSizeHTML = (size) => {
 
   return `
 <li class="d-flex" id="${NAV_ELEM_ID}">
-  <a class="js-selected-navigation-item UnderlineNav-item hx_underlinenav-item no-wrap js-responsive-underlinenav-item" data-tab-item="settings-tab" style="cursor: pointer">
-    <svg class="octicon octicon-gear UnderlineNav-octicon d-none d-sm-inline" display="none inline" aria-hidden="true" height="16" version="1.1" viewBox="0 0 12 16" width="12">
+  <a class="js-selected-navigation-item UnderlineNav-item hx_underlinenav-item no-wrap js-responsive-underlinenav-item" style="cursor: pointer">
+    <svg class="octicon octicon-database UnderlineNav-octicon d-none d-sm-inline" display="none inline" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16">
     <path d="M6 15c-3.31 0-6-.9-6-2v-2c0-.17.09-.34.21-.5.67.86 3 1.5 5.79 1.5s5.12-.64 5.79-1.5c.13.16.21.33.21.5v2c0 1.1-2.69 2-6 2zm0-4c-3.31 0-6-.9-6-2V7c0-.11.04-.21.09-.31.03-.06.07-.13.12-.19C.88 7.36 3.21 8 6 8s5.12-.64 5.79-1.5c.05.06.09.13.12.19.05.1.09.21.09.31v2c0 1.1-2.69 2-6 2zm0-4c-3.31 0-6-.9-6-2V3c0-1.1 2.69-2 6-2s6 .9 6 2v2c0 1.1-2.69 2-6 2zm0-5c-2.21 0-4 .45-4 1s1.79 1 4 1 4-.45 4-1-1.79-1-4-1z"></path>
     </svg>
-    <span data-content="Settings">${humanReadableSize.size} ${humanReadableSize.measure}</span>
+    <span>${humanReadableSize.size} ${humanReadableSize.measure}</span>
   </a>
 </li>
 `
@@ -132,20 +132,24 @@ const checkForRepoPage = async () => {
   const ns = document.querySelector('ul.UnderlineNav-body')
   const navElem = document.getElementById(NAV_ELEM_ID)
   const tdElems = document.querySelector('span.github-repo-size-div')
+  
+  // whether the files list box has any rows
+  const viewingDir = document.querySelector('div.Box-row') && true
 
   if (ns && !navElem) {
     getAPIData(repoObj.repo).then(summary => {
       if (summary && summary.size) {
         ns.insertAdjacentHTML('beforeend', getSizeHTML(summary.size * 1024))
         const newLiElem = document.getElementById(NAV_ELEM_ID)
-        newLiElem.title = 'Click to load directory sizes'
-        newLiElem.style.cssText = 'cursor: pointer'
-        newLiElem.onclick = loadDirSizes
+        if(viewingDir) {
+          newLiElem.title = 'Click to load directory sizes'
+          newLiElem.onclick = loadDirSizes
+        }
       }
     })
   }
 
-  if (tdElems) return
+  if (!viewingDir || tdElems) return
 
   const tree = await getAPIData(`${repoObj.repo}/contents/${repoObj.currentPath}?ref=${repoObj.ref}`)
   const sizeObj = { '..': '..' }
